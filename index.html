@@ -8586,7 +8586,7 @@
           const labelHtml = '<div class="tsa-label-inner" style="max-width:' + Math.round(availPx) + 'px">' +
             lines.join('<br>') + '</div>';
 
-          if (map.getZoom() < 8) return;
+          if (map.getZoom() < 7) return;
           poly.bindTooltip(labelHtml, {
             permanent: true,
             direction: 'center',
