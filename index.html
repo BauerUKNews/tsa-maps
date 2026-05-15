@@ -43,13 +43,13 @@
     #map { width: 100%; height: 100%; }
 
     @keyframes panelSlideDown {
-      from { opacity: 0; transform: translateY(-12px); }
+      from { opacity: 0; transform: translateY(12px); }
       to   { opacity: 1; transform: translateY(0); }
     }
     #controls {
       animation: panelSlideDown 0.6s cubic-bezier(0.16,1,0.3,1) 0.3s both;
       position: absolute;
-      top: 10px; left: 10px;
+      bottom: 10px; left: 10px; top: auto;
       transform: none;
       z-index: 1000;
       cursor: grab;
@@ -173,6 +173,137 @@
 
     .leaflet-draw-toolbar, .export-control, #coordsPanel { display: none !important; }
 
+    #helpModal {
+      position: fixed;
+      inset: 0;
+      background: rgba(71,0,163,0.25);
+      backdrop-filter: blur(3px);
+      z-index: 3000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #helpModalInner {
+      background: #fff;
+      border-radius: 14px;
+      box-shadow: 0 8px 40px rgba(71,0,163,0.25);
+      padding: 24px 24px 20px;
+      max-width: 340px;
+      width: 90%;
+      position: relative;
+      font-family: 'BauerMediaSans', sans-serif;
+    }
+    #helpModalTitle {
+      font-size: 15px;
+      font-weight: 700;
+      color: #4700A3;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 16px;
+      padding-right: 28px;
+    }
+    #helpClose {
+      position: absolute;
+      top: 16px; right: 16px;
+      background: #e1dcff;
+      border: none;
+      border-radius: 50%;
+      width: 28px; height: 28px;
+      font-size: 16px;
+      color: #4700A3;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: sans-serif;
+    }
+    #helpClose:hover { background: #c8c0ff; }
+    .help-control-btn {
+      width: 30px !important;
+      height: 30px !important;
+      background: #4700A3 !important;
+      color: #fff !important;
+      border: 2px solid #fff !important;
+      border-radius: 50% !important;
+      font-family: 'BauerMediaSans', sans-serif !important;
+      font-size: 15px !important;
+      font-weight: 700 !important;
+      cursor: pointer !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      box-shadow: 0 2px 8px rgba(71,0,163,0.3) !important;
+      margin-top: 4px !important;
+    }
+    .help-control-btn:hover { background: #6B28C8 !important; }
+    .help-section {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      margin-bottom: 12px;
+      font-size: 12px;
+      color: #1a0a2e;
+      line-height: 1.4;
+    }
+    .help-icon {
+      font-size: 16px;
+      flex-shrink: 0;
+      width: 22px;
+      text-align: center;
+      margin-top: 1px;
+    }
+    .help-section strong { color: #4700A3; }
+
+
+    .search-pin {
+      background: none !important;
+      border: none !important;
+    }
+    .pin-body {
+      width: 24px;
+      height: 24px;
+      background: #4700A3;
+      border: 2.5px solid #ffffff;
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      box-shadow: 0 2px 8px rgba(71,0,163,0.5);
+      position: absolute;
+      top: 0; left: 0;
+      cursor: pointer;
+    }
+    .pin-body::after {
+      content: '';
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: #1fd1bd;
+      border-radius: 50%;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .pin-tip {
+      width: 0; height: 0;
+      border-left: 4px solid transparent;
+      border-right: 4px solid transparent;
+      border-top: 8px solid #4700A3;
+      position: absolute;
+      bottom: 0;
+      left: 8px;
+      display: none; /* handled by border-radius on pin-body */
+    }
+    .pin-tooltip {
+      background: #4700A3 !important;
+      border: none !important;
+      color: #fff !important;
+      font-family: 'BauerMediaSans', sans-serif !important;
+      font-size: 11px !important;
+      font-weight: 600 !important;
+      border-radius: 6px !important;
+      padding: 4px 8px !important;
+      box-shadow: 0 2px 8px rgba(71,0,163,0.3) !important;
+    }
+    .pin-tooltip::before { border-top-color: #4700A3 !important; }
+
     .tsa-label {
       background: none !important;
       border: none !important;
@@ -235,6 +366,42 @@
 
 <div id="map"></div>
 <div id="coordsPanel"></div>
+
+<div id="helpModal" style="display:none">
+  <div id="helpModalInner">
+    <div id="helpModalTitle">How to use the TSA Map</div>
+    <button id="helpClose">&times;</button>
+    <div class="help-section">
+      <div class="help-icon">&#128269;</div>
+      <div><strong>Search</strong><br>Type a place name in the search bar (top right) to find it on the map. A pin will mark the location and the info box will show which TSAs cover it.</div>
+    </div>
+    <div class="help-section">
+      <div class="help-icon">&#128204;</div>
+      <div><strong>Remove pin</strong><br>Click a search pin to remove it from the map.</div>
+    </div>
+    <div class="help-section">
+      <div class="help-icon">&#9651;</div>
+      <div><strong>Hover</strong><br>Move your mouse over any TSA to highlight it and see its name. Overlapping patches will all light up together.</div>
+    </div>
+    <div class="help-section">
+      <div class="help-icon">&#128065;</div>
+      <div><strong>Outline mode</strong><br>Click any TSA to strip the colours away, leaving just the purple outlines so you can read the map underneath. Click again to restore colours.</div>
+    </div>
+    <div class="help-section">
+      <div class="help-icon">&#9776;</div>
+      <div><strong>Filter by group</strong><br>Use the group buttons to show or hide sets of stations. Use <em>Show All</em> / <em>Show None</em> to reset.</div>
+    </div>
+    <div class="help-section">
+      <div class="help-icon">&#128204;</div>
+      <div><strong>Jump to TSA</strong><br>Use the <em>Select TSA</em> dropdown to zoom straight to a specific area.</div>
+    </div>
+    <div class="help-section">
+      <div class="help-icon">&#9870;</div>
+      <div><strong>Move this panel</strong><br>Drag the control panel anywhere on screen. It will reflow to a wider layout if moved to the centre.</div>
+    </div>
+
+  </div>
+</div>
 <div id="searchDialog"></div>
 
 <!-- Libraries loaded here so they are guaranteed available before the data script runs -->
@@ -8012,6 +8179,15 @@
         document.addEventListener('touchend', endDrag);
       })();
 
+
+      // Help modal close handlers
+      document.getElementById('helpClose').addEventListener('click', function() {
+        document.getElementById('helpModal').style.display = 'none';
+      });
+      document.getElementById('helpModal').addEventListener('click', function(e) {
+        if (e.target === this) this.style.display = 'none';
+      });
+
       // Create a dedicated pane for the Bristol polygon so it always renders
       // above larger overlapping polygons such as the West of England. A high
       // z-index ensures this pane sits on top of the default overlay pane.
@@ -8024,6 +8200,7 @@
         maxZoom: 18,
         attribution: '&copy; OpenStreetMap contributors'
       }).addTo(map);
+
 
       // Info control displays details of clicked location and TSAs
       const info = L.control({ position: 'bottomright' });
@@ -8126,15 +8303,19 @@
         tsaLayers.forEach(function(layer) {
           if (layer !== selected) {
             layer.setStyle({
-              fillOpacity: 0.05,
-              opacity: 0.4,
-              weight: 1
+              fillColor: '#4700A3',
+              fillOpacity: 0.65,
+              color: '#ffffff',
+              opacity: 1,
+              weight: 1.5
             });
           } else {
             layer.setStyle({
-              fillOpacity: 0.25,
+              fillColor: '#4700A3',
+              fillOpacity: 0.65,
+              color: '#ffffff',
               opacity: 1,
-              weight: 2
+              weight: 1.5
             });
           }
         });
@@ -8144,9 +8325,11 @@
       function restorePolygonStyles() {
         tsaLayers.forEach(function(layer) {
           layer.setStyle({
-            fillOpacity: 0.25,
+            fillColor: '#4700A3',
+            fillOpacity: 0.65,
+            color: '#ffffff',
             opacity: 1,
-            weight: 2
+            weight: 1.5
           });
         });
         editingPolygon = null;
@@ -8419,6 +8602,45 @@
       map.on('zoomend', buildLabels);
 
 
+      // ── SEARCH PIN ──
+      const pinPane = map.createPane('pinPane');
+      pinPane.style.zIndex = 800;
+      let searchPin = null;
+
+      function placePin(latlng, label) {
+        // Remove existing pin
+        if (searchPin) { map.removeLayer(searchPin); searchPin = null; }
+
+        const pinIcon = L.divIcon({
+          className: 'search-pin',
+          html: '<div class="pin-body"></div><div class="pin-tip"></div>',
+          iconSize: [24, 36],
+          iconAnchor: [12, 36],
+          popupAnchor: [0, -38]
+        });
+
+        searchPin = L.marker(latlng, {
+          icon: pinIcon,
+          pane: 'pinPane',
+          interactive: true,
+          zIndexOffset: 9999
+        });
+
+        searchPin.bindTooltip(label, {
+          permanent: true,
+          direction: 'top',
+          className: 'pin-tooltip',
+          offset: [0, -36]
+        });
+
+        searchPin.on('click', function() {
+          map.removeLayer(searchPin);
+          searchPin = null;
+        });
+
+        searchPin.addTo(map);
+      }
+
       // ── PERIMETER PULSE ANIMATION ──
       const perimCanvas = document.createElement('canvas');
       perimCanvas.style.cssText = 'position:absolute;top:0;left:0;pointer-events:none;z-index:1050;';
@@ -8555,10 +8777,11 @@
         });
 
         if (outlineOnlyMode) return;
+        searchResultsLocked = false;
         if (under.length === 0) {
           if (hoveredPolys.length > 0) {
             clearHover();
-            if (!searchResultsLocked) info.update();
+            info.update();
           }
           return;
         }
@@ -8581,10 +8804,8 @@
         });
         startPerimAnim(hoveredPolys);
 
-        if (!searchResultsLocked) {
-          const names = under.map(function(p) { return p.tsaName; }).join(' / ');
-          info.update('<b>' + names + '</b>');
-        }
+        const names = under.map(function(p) { return p.tsaName; }).join(' / ');
+        info.update('<b>' + names + '</b>');
       });
 
       map.on('mouseout', function() {
@@ -8706,6 +8927,7 @@
           map.fitBounds(poly.getBounds());
           // also check TSAs for the centre point
           const center = e.geocode.center;
+          placePin(center, e.geocode.name);
           const found = findAllTSAs(center);
           // Always highlight the found polygons (if any) and show a persistent dialog
           highlight(found);
@@ -8713,6 +8935,22 @@
           showSearchDialog(found, '“' + e.geocode.name + '”');
         })
         .addTo(map);
+
+      // Help button control (top right, below geocoder)
+      const helpControl = L.Control.extend({
+        options: { position: 'topright' },
+        onAdd: function() {
+          const btn = L.DomUtil.create('button', 'help-control-btn');
+          btn.innerHTML = '?';
+          btn.title = 'Help';
+          L.DomEvent.disableClickPropagation(btn);
+          L.DomEvent.on(btn, 'click', function() {
+            document.getElementById('helpModal').style.display = 'flex';
+          });
+          return btn;
+        }
+      });
+      new helpControl().addTo(map);
 
       // Wire up the toggle buttons so clicking them hides/shows the corresponding group.
       document.querySelectorAll('#controls button[data-group]').forEach(btn => {
